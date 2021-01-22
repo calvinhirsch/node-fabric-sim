@@ -8,7 +8,7 @@
 int fps = 60;
 int scale = 16;
 float dt;
-int monitor = 1;
+int monitor = 0;
 bool draw_fps = false;
 
 bool draw_circle = false;
@@ -147,17 +147,22 @@ void apply_mouse_force() {
                 proj_y = last_my + t * dy; // Y position of closest point on segment
                 dist_x = proj_x - i;
                 dist_y = proj_y - j;
+
+                dist = sqrt(dist_x * dist_x + dist_y * dist_y) + fh[ind] * dir * scale_mult;
+                dist_last = sqrt(dist_x_last * dist_x_last + dist_y_last * dist_y_last) + fh[ind] * dir * scale_mult;
+
+                if (dist < min_dist) dist = min_dist;
+                if (dist_last < min_dist) dist_last = min_dist;
+                fv[ind] +=  m_force * clipf(1 / (dist*dist) - 1 / (dist_last*dist_last), 0, 99999) * dir;
             }
             else {
-                t = 1;
                 dist_x = i - mx;
                 dist_y = j - my;
-            }
 
-            dist = sqrt(dist_x * dist_x + dist_y * dist_y) + fh[ind] * dir * scale_mult;
-            dist_last = sqrt(dist_x_last * dist_x_last + dist_y_last * dist_y_last)+ fh[ind] * dir * scale_mult;
-            if (dist < min_dist) dist = min_dist;
-            fv[ind] +=  m_force * clipf(1 / (dist*dist) - 1 / (dist_last*dist_last), 0, 99999) * dir;
+                dist = sqrt(dist_x * dist_x + dist_y * dist_y) + fh[ind] * dir * scale_mult;
+                if (dist < min_dist) dist = min_dist;
+                fv[ind] += m_force * clipf(0.5 / (dist * dist), 0, 99999) * dir;
+            }
         }
     }
     printf("\n");
